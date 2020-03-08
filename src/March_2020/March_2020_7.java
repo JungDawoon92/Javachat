@@ -80,7 +80,6 @@ class Game implements Baseballgame {
 			}
 		}
 		System.out.printf(" %d : %d : %d \n" ,numX[0],numX[1],numX[2]);
-		
 	};
 	
 	
