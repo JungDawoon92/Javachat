@@ -15,6 +15,7 @@ class Game implements Baseballgame {
 	
 	int[] Com = new int[3];
 	int[] numX = new int[3];
+	int count = 0;
 	
 	public void Comnum() {
 		Random randomV1 = new Random();
@@ -79,6 +80,7 @@ class Game implements Baseballgame {
 				break;
 			}
 		}
+		count++;
 		System.out.printf(" %d : %d : %d \n" ,numX[0],numX[1],numX[2]);
 	};
 	
@@ -105,11 +107,10 @@ class Game implements Baseballgame {
 			}
 		}
 		if(out==false) {
-			System.out.println("OUT!!");
+			System.out.printf("OUT!! %d회",count);	
 		}
-		else if(out==true) {
-			System.out.printf("%d Strike %d Ball \n",stk,ball);
-			
+		else {
+			System.out.printf("%d Strike %d Ball %d회",stk,ball,count); 
 		}
 		return stk;
 	};
@@ -125,18 +126,14 @@ public class March_2020_7 {
 		Game io = new Game();
 		io.Comnum();
 		
-		while(true) {
+		for(int i = 1; i>0; i++) {
 			io.UserNum();
 			cnt = io.Answer();
-			
-			if(cnt==3) {
+			if(cnt ==3) {
 				break;
 			}
 		}
-		
+		System.out.println("");
 		System.out.println("게임을 종료합니다.");
-		
-
 	}
-
 }
