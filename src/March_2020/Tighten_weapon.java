@@ -2,8 +2,7 @@ package March_2020;
 import java.util.Random;
 import java.util.Scanner;
 
-// 다음에 해야할것. 강화시 뜨레드로 지연하기 기능 + 0원일때 게임종료
-
+//용무기 9강이 되면 축하합니다 메소드
 
 class Good {
 	int tri;
@@ -17,6 +16,8 @@ class Good {
 		double a =1;
 		double fac=1;
 		
+		int b =5;//time wait
+		
 		money = money-1000;
 		System.out.printf("남은돈: %d \n",money);
 		
@@ -25,11 +26,26 @@ class Good {
 			a = i*0.1;
 			fac = fac*a;
 			
+			if(i==b) {
+				int timeToWait = 5; //second
+				System.out.print("(강화중) \n");
+		        try {
+		            for (int q=0; q<timeToWait ; q++) {
+		                Thread.sleep(1000);
+		                System.out.print(".");
+		            }
+		        } catch (InterruptedException ie)
+		        {
+		            Thread.currentThread().interrupt();
+		        }
+		        b--;
+			}
+			
 			if(r.nextInt(10)<i) {
 				int sell = ((1000+((int)(4000*(1-(fac)))))/100)*100;
-				
+				System.out.println("");
 				System.out.printf("무기강화에 성공하셨습니다. %d강 \n",n);
-				System.out.printf("%d에 도전하시겠습니까?(도전 : 1번입력) 확률 %d%% \n",n+1,(10-n)*10);
+				System.out.printf("☆%d강☆ 에 도전하시겠습니까?(도전 : 1번입력) \n 확률 %d%% \n",n+1,(10-n)*10);
 				System.out.printf("판매금액: %d원(판매 : 2번입력)  \n",sell);
 				
 				tri =sc.nextInt();
@@ -43,13 +59,14 @@ class Good {
 					break;
 				}
 			}
+			
 			else {
-				System.out.println("실패하셨습니다.");
+				System.out.println("");
+				System.out.println("실패되어 용무기가 파괴되었습니다.");
 				break;
 			}
 			   n++;
 		   }
-			
 		}
 	}
 
@@ -60,16 +77,23 @@ public class Tighten_weapon {
 		
 		Good gms = new Good();
 		
-		for(int i=1; i>0; i++) {
+		for(int i=1; i>0; i++) {	
 			   int money = gms.money;
-			   System.out.println("용무기 강화에 도전하시겠습니까? 1강->2강 확률90%  (도전 1 입력/게임종료 2 입력)");
+			   if(money < 1000) {
+				   System.out.println("돈이 부족합니다. Game Over");
+				   break;
+			   }
+			   
+			   System.out.println("용무기 강화에 도전하시겠습니까? \n 1강->2강 확률90%  (도전 1 입력/게임종료 2 입력)");
 			   System.out.printf("남은돈 %d원 [용무기는 1000원 입니다.] \n",money);
+			   
 			   int trS =gms.sc.nextInt();
+			   
 			   if(trS == 1) {
 				   gms.Goodgame();
 			   }
 			   else if(trS == 2) {
-				   //종료
+				  System.out.println("게임을 종료합니다.");
 			   }
 		   }   
 	}
