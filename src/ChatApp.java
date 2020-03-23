@@ -36,6 +36,7 @@ public class ChatApp {
 	PreparedStatement pstmt1;
 	PreparedStatement pstmt2;
 	PreparedStatement pstmt3;
+	String ip;
 	
 	
 	
@@ -78,9 +79,9 @@ public class ChatApp {
 			while(true) {
 				socket = serverSocket.accept();
 				System.out.println(socket.getInetAddress()+":"+socket.getPort());
-				String ip = socket.getInetAddress().toString();
+				ip = socket.getInetAddress().toString();
 				
-				Thread mst = new MultiServerT(socket,ip); // 쓰레드 생성.
+				Thread mst = new MultiServerT(socket); // 쓰레드 생성.
 				mst.start(); // 쓰레드 시동.
 			}
 		
@@ -103,12 +104,10 @@ public class ChatApp {
 		Socket socket;
 		PrintWriter out = null;
 		BufferedReader in = null;
-		String ip="";
 		
 		// 생성자.
-		public MultiServerT(Socket socket, String ip) {
+		public MultiServerT(Socket socket) {
 			this.socket = socket;
-			this.ip=ip;
 			
 			try {
 				out = new PrintWriter(this.socket.getOutputStream(), true);
@@ -127,12 +126,37 @@ public class ChatApp {
 					
 			//String s = "";
 //			String name = ""; // 클라이언트로부터 받은 이름을 저장할 변수.
-			String choice ="";
 			connectDatabase();
 			
 			try {
-				choice = in.readLine();
-				doRun(choice,ip); //회원가입/접속/탈퇴를 관리하는 메소드.
+				doRun(in,out); //회원가입/접속/탈퇴를 관리하는 메소드.
+				
+				
+//				// retrun값이있으면 실행하고 없으면 좋료. if문으로 판단하자.
+//				name =in.readLine(); // 클라이언트에서 처음으로 보내는 메세지는
+//				 // 클라이언트가 사용할 이름이다.
+//
+//				sendAllMsg("", name + "님이 입장하셨습니다.");
+//
+//				//현재 객체가 가지고 있는 소캣을 제외하고 다른 소켓(클라이언트)들에게 접속을 알림.
+//
+//				clientMap.put(name, out); //해쉬맵에 키를 name 으로 출력스트림 객체를 저장.
+//				System.out.println("현재 접속자 수는 " +clientMap.size()+"명 입니다.");
+//
+//				// 입력스트림이 null이 아니면 반복.
+//				String s = "";
+//				while (in!=null) {
+//					s = in.readLine();
+//					System.out.println(s);
+//
+//					if(s.equals("/list"))
+//						list(out);
+//					else
+//						sendAllMsg(name, s);
+//				}
+//
+//				//System.out.println("Bye...");
+				
 				
 				
 			} catch(Exception e) {
@@ -191,7 +215,7 @@ public class ChatApp {
 			}
 		}
 		
-		public void NewMember(String ip) throws IOException {
+		public void NewMember(BufferedReader in, PrintWriter out) throws IOException {
 		
 			String id ="";
 			String sql ="";
@@ -223,7 +247,7 @@ public class ChatApp {
 			String pwd = in.readLine();
 			out.println("별명 : ");
 			String cha = in.readLine();
-			String s = "";
+			
 			
 			try {
 				pstmt1 = con.prepareStatement(sql);
@@ -233,27 +257,65 @@ public class ChatApp {
 				pstmt1.setString(4, cha);
 				int updateCount = pstmt1.executeUpdate();
 				System.out.println("데이터베이스에 추가되었습니다.");
+				
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.out.println("데이터베이스 입력 에러입니다.");
 			}
+		}
 			
-			while (in!=null) {
-				s = in.readLine();
-				System.out.println(s);
 
-				if(s.equals("/list"))
-					list(out);
-				else
-					sendAllMsg(cha, s);
+		
+		
+		
+	
+		public void Member(BufferedReader in, PrintWriter out) throws IOException {
+			
+			while(true) {
+				out.println("아이디를 입력하세요.");
+				String id = in.readLine();
+				out.println("비밀번호를 입력하세요.");
+				String pwd = in.readLine();
+				
+				String Did = ""; // 데이터베이스에있는 id
+				String Dpw = ""; // 데이터베이스에있는 비밀번호
+
+				
+				String sql = "select * from ClientInfo where id = ?";
+				try {
+					pstmt3 = con.prepareStatement(sql);
+					pstmt3.setString(1, id);
+					ResultSet rs = pstmt3.executeQuery();
+//					Right.equals(map)
+					if(rs.next()) {
+						Did = rs.getString(1);
+						Dpw = rs.getString(2);
+						
+						if(id.equals(Did) && pwd.equals(Dpw)) {
+							out.println("로그인되셨습니다.");
+							
+							return; // 로그인이되면 return이아닌 채팅방 입장.
+						} else {
+							out.println("아이디나 비밀번호가 틀립니다.");
+						}
+					} else {
+						out.println("아이디나 비밀번호가 틀립니다.");
+					}
+					
+					
+					rs.close();
+				} catch (Exception e) {
+					System.out.println("알 수 없는 에러가 발생했습니다.");
+				}
+				
 			}
 		}
-		
-		public void Member() {
 			
-		}//임시
-		
-//		public void Member() {
+			
+			
+			
+
 //			name =in.readLine(); // 클라이언트에서 처음으로 보내는 메세지는
 //			 // 클라이언트가 사용할 이름이다.
 //			sendAllMsg("", name + "님이 입장하셨습니다.");
@@ -273,11 +335,14 @@ public class ChatApp {
 //					list(out);
 //				else
 //					sendAllMsg(name, s);
-//			}
-//
-//			//System.out.println("Bye...");
-//			
-//		}
+//			}			
+		
+		
+		
+		//=================
+		
+		
+		
 		
 		public void DelMember() {
 			
@@ -287,16 +352,20 @@ public class ChatApp {
 			
 		}
 		
-		public void doRun(String choice,String ip) throws IOException {
+		public void doRun(BufferedReader in, PrintWriter out) throws IOException {
 			while(true) {
-				ShowMenu();
+				
+				//ShowMenu();// 아래문구 showmenu로 변경예정.
+				out.println("안녕하세요~환영합니다.");
+				
+				String choice = in.readLine();
 		
 				switch (choice) {
 				case "1":
-					NewMember(ip);
+					NewMember(in,out);
 					break;
 				case "2":
-					Member();
+					Member(in,out);
 					break;
 				case "3":
 					DelMember();
@@ -314,8 +383,17 @@ public class ChatApp {
 		
 		
 	}
-
 }
+
+//while (in!=null) {
+//s = in.readLine();
+//System.out.println(s);
+//
+//if(s.equals("/list"))
+//	list(out);
+//else
+//	sendAllMsg(cha, s);
+//}
 
 
 
