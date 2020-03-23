@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 
 public class ChatApp {
@@ -21,12 +22,21 @@ public class ChatApp {
 	Socket socket = null;
 	Map<String, PrintWriter> clientMap;
 	
+	Map<String, PrintWriter> RoomMap1;
+//	Map<Integer, String> RoomMap2;
+	
+	
+	
 	//생성자
 	public ChatApp() {
 		// 클라이언트의 출력스트림을 저장할 해쉬맵 생성
 		clientMap = new HashMap<String, PrintWriter>();
 		//해쉬맵 동기화 설정
 		Collections.synchronizedMap(clientMap); // 지금 느끼는건. 누락없이 순서대로 In 하기위해 하는것 같음.
+		
+		RoomMap1 = new HashMap<String, PrintWriter>();
+//		RoomMap2 = new HashMap<Integer, String>();
+	
 	}
 		
 		
@@ -68,7 +78,6 @@ public class ChatApp {
 		//서버 객체 생성.
 		ChatApp ms = new ChatApp();
 		ms.init(); //소캣 자동연결 쓰래드
-//		ms.doRun(); //실행. 3/22 버려도될것같음.
 	}
 	
 	public void init() {
@@ -124,39 +133,37 @@ public class ChatApp {
 		@Override
 		public void run() {
 					
-			//String s = "";
-//			String name = ""; // 클라이언트로부터 받은 이름을 저장할 변수.
+//			String s = "";
+			String name = ""; // 클라이언트로부터 받은 이름을 저장할 변수.
 			connectDatabase();
 			
 			try {
-				doRun(in,out); //회원가입/접속/탈퇴를 관리하는 메소드.
+				// retrun값이있으면 실행하고 없으면 좋료. if문으로 판단하자.
+				// dorun은 회원가입/접속/탈퇴를 관리하는 메소드.
+				name = doRun(in,out);
 				
+				// 이후의 진행은 로그인완료상태
+				clientMap.put(name, out); //해쉬맵에 키를 name 으로 출력스트림 객체를 저장.
 				
-//				// retrun값이있으면 실행하고 없으면 좋료. if문으로 판단하자.
-//				name =in.readLine(); // 클라이언트에서 처음으로 보내는 메세지는
-//				 // 클라이언트가 사용할 이름이다.
-//
-//				sendAllMsg("", name + "님이 입장하셨습니다.");
-//
-//				//현재 객체가 가지고 있는 소캣을 제외하고 다른 소켓(클라이언트)들에게 접속을 알림.
-//
-//				clientMap.put(name, out); //해쉬맵에 키를 name 으로 출력스트림 객체를 저장.
-//				System.out.println("현재 접속자 수는 " +clientMap.size()+"명 입니다.");
-//
-//				// 입력스트림이 null이 아니면 반복.
-//				String s = "";
-//				while (in!=null) {
-//					s = in.readLine();
-//					System.out.println(s);
-//
-//					if(s.equals("/list"))
-//						list(out);
-//					else
-//						sendAllMsg(name, s);
-//				}
-//
-//				//System.out.println("Bye...");
+				ShowRoom(name);
 				
+				sendAllMsg("", name + "님이 입장하셨습니다.");
+
+				//현재 객체가 가지고 있는 소캣을 제외하고 다른 소켓(클라이언트)들에게 접속을 알림.
+				
+				System.out.println("현재 접속자 수는 " +clientMap.size()+"명 입니다.");
+
+				// 입력스트림이 null이 아니면 반복.
+				String s = "";
+				while (in!=null) {
+					s = in.readLine();
+					System.out.println(s);
+
+					if(s.equals("/list"))
+						list(out);
+					else
+						sendAllMsg(name, s);
+				}
 				
 				
 			} catch(Exception e) {
@@ -180,25 +187,6 @@ public class ChatApp {
 			}
 		}
 		
-		
-		// 접속된 모든 클라이언트들에게 메세지를 전달.
-		public void sendAllMsg(String user, String msg) {
-			
-			// 출력 스트림을 순차적으로 얻어와서 해당 메세지를 출력한다.
-			Iterator<String> it = clientMap.keySet().iterator();
-			
-			while (it.hasNext()) {
-				try {
-					PrintWriter it_out = (PrintWriter) clientMap.get(it.next());
-					if (user.equals(""))
-						it_out.println(msg);
-					else
-						it_out.println("["+user+"]"+ msg);
-				} catch(Exception e) {
-					System.out.println("예외 :"+e);
-				}
-			}
-		}
 		
 		// 접속자 리스트 보내기
 		public void list(PrintWriter out) {
@@ -270,7 +258,7 @@ public class ChatApp {
 		
 		
 	
-		public void Member(BufferedReader in, PrintWriter out) throws IOException {
+		public String Member(BufferedReader in, PrintWriter out) throws IOException {
 			
 			while(true) {
 				out.println("아이디를 입력하세요.");
@@ -295,7 +283,7 @@ public class ChatApp {
 						if(id.equals(Did) && pwd.equals(Dpw)) {
 							out.println("로그인되셨습니다.");
 							
-							return; // 로그인이되면 return이아닌 채팅방 입장.
+							return Did; // 로그인이되면 return이아닌 채팅방 입장.
 						} else {
 							out.println("아이디나 비밀번호가 틀립니다.");
 						}
@@ -314,32 +302,7 @@ public class ChatApp {
 			
 			
 			
-			
 
-//			name =in.readLine(); // 클라이언트에서 처음으로 보내는 메세지는
-//			 // 클라이언트가 사용할 이름이다.
-//			sendAllMsg("", name + "님이 입장하셨습니다.");
-//
-//			//현재 객체가 가지고 있는 소캣을 제외하고 다른 소켓(클라이언트)들에게 접속을 알림.
-//			clientMap.put(name, out); //해쉬맵에 키를 name 으로 출력스트림 객체를 저장.
-//
-//			//System.out.println("현재 접속자 수는 " +clientMap.size()+"명 입니다.");
-//
-//			// 입력스트림이 null이 아니면 반복.
-//			String s = "";
-//			while (in!=null) {
-//				s = in.readLine();
-//				System.out.println(s);
-//
-//				if(s.equals("/list"))
-//					list(out);
-//				else
-//					sendAllMsg(name, s);
-//			}			
-		
-		
-		
-		//=================
 		
 		
 		
@@ -352,12 +315,12 @@ public class ChatApp {
 			
 		}
 		
-		public void doRun(BufferedReader in, PrintWriter out) throws IOException {
+		public String doRun(BufferedReader in, PrintWriter out) throws IOException {
 			while(true) {
 				
 				//ShowMenu();// 아래문구 showmenu로 변경예정.
 				out.println("안녕하세요~환영합니다.");
-				
+				String ch = "";
 				String choice = in.readLine();
 		
 				switch (choice) {
@@ -365,14 +328,14 @@ public class ChatApp {
 					NewMember(in,out);
 					break;
 				case "2":
-					Member(in,out);
-					break;
+					ch = Member(in,out);
+					return ch;
 				case "3":
 					DelMember();
 					break;
 				case "4":
 					out.println("프로그램을 종료합니다.");
-					return;
+					return ch;
 				default :
 					out.println("잘 못 입력하셨습니다.");
 					break;
@@ -380,8 +343,64 @@ public class ChatApp {
 			}
 		}
 		
-		
-		
+		public void ShowRoom(String name) throws IOException{
+			String choice ="" ;
+			String roomname ="";
+			String a = "";
+			String id = name;
+
+			Map<Integer, String> RoomMap2 = new HashMap<>();
+			
+			out.println("1.방만들기");
+			out.println("2.채팅방입장하기");
+			choice = in.readLine();
+			
+			if(choice.equals("1")) {
+				out.println("만드실 방이름을 입력해주세요.");
+				roomname = in.readLine();
+				RoomMap1.put(roomname,out);
+				out.println("방이 성공적으로 완성되었습니다.");
+				//
+				//채팅방 대기.
+				//첫번째 만든사람의 아이디+out저장.
+				//두번째 들어온사람의 아이디+out저장.
+				
+				
+			} else if (choice.equals("2")){
+				String key;
+				Set<String> set = RoomMap1.keySet();
+				
+				Iterator<String> it = set.iterator();
+							
+				for(int Roomnumber =1; Roomnumber < RoomMap1.size()+1; it.hasNext()) {
+					key = (String)it.next();
+					out.println(Roomnumber+"."+key);
+					RoomMap2.put(Roomnumber,roomname);
+					Roomnumber++;
+				}
+				
+				choice = in.readLine();
+				a = RoomMap2.get(choice); // 룸네임을 받는다./룸네임을 키값으로 out을 받는다.
+
+			}
+		}
+				public void sendAllMsg(String user, String msg) {
+					
+					// 출력 스트림을 순차적으로 얻어와서 해당 메세지를 출력한다.
+					Iterator<String> it = clientMap.keySet().iterator();
+					
+					while (it.hasNext()) {
+						try {
+							PrintWriter it_out = (PrintWriter) clientMap.get(it.next());
+							if (user.equals(""))
+								it_out.println(msg);
+							else
+								it_out.println("["+user+"]"+ msg);
+						} catch(Exception e) {
+							System.out.println("예외 :"+e);
+						}
+					}
+				}
 	}
 }
 
