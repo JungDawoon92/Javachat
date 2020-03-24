@@ -132,32 +132,44 @@ public class ChatApp {
 			connectDatabase();
 			
 			try {
-				// retrun값이있으면 실행하고 없으면 좋료. if문으로 판단하자.
-				// dorun은 회원가입/접속/탈퇴를 관리하는 메소드.
-				name = doRun(in,out);
+				String wow="";
+				wow=in.readLine();
+				out.println(wow+"님 환영합니다.");
 				
-				// 이후의 진행은 로그인완료상태
-				clientMap.put(name, out); //해쉬맵에 키를 name 으로 출력스트림 객체를 저장.
 				
-				ShowRoom(name,out);
-				
-				sendAllMsg("", name + "님이 입장하셨습니다.");
-
-				//현재 객체가 가지고 있는 소캣을 제외하고 다른 소켓(클라이언트)들에게 접속을 알림.
-				
-				System.out.println("현재 접속자 수는 " +clientMap.size()+"명 입니다.");
-
-				// 입력스트림이 null이 아니면 반복.
-				String s = "";
-				while (in!=null) {
-					s = in.readLine();
-					System.out.println(s);
-
-					if(s.equals("/list"))
-						list(out);
-					else
-						sendAllMsg(name, s);
+				while(true) {
+					name = doRun(in,out);
+					
+					if(name.equals("")) {
+						out.println("프로그램을 종료합니다. 이용해주셔서 감사합니다.");
+						break;
+					} else {
+						clientMap.put(name, out); //해쉬맵에 키를 name 으로 출력스트림 객체를 저장.
+						
+						ShowRoom(name,out);
+					}
 				}
+			
+				
+				
+				
+//				sendAllMsg("", name + "님이 입장하셨습니다.");
+//
+//				//현재 객체가 가지고 있는 소캣을 제외하고 다른 소켓(클라이언트)들에게 접속을 알림.
+//				
+//				System.out.println("현재 접속자 수는 " +clientMap.size()+"명 입니다.");
+//
+//				// 입력스트림이 null이 아니면 반복.
+//				String s = "";
+//				while (in!=null) {
+//					s = in.readLine();
+//					System.out.println(s);
+//
+//					if(s.equals("/list"))
+//						list(out);
+//					else
+//						sendAllMsg(name, s);
+//				}
 				
 				
 			} catch(Exception e) {
@@ -307,10 +319,24 @@ public class ChatApp {
 			while(true) {
 				
 				//ShowMenu();// 아래문구 showmenu로 변경예정.
-				out.println("안녕하세요~환영합니다.");
+				out.println("숫자로 입력해주세요.");
+				out.println("1번 :  회원가입 ");
+				out.println("2번 :  기존회원");
+				out.println("3번 :  회원탈퇴");
+				out.println("4번 :  종료하기");
+		
+				
 				String ch = "";
 				String choice = in.readLine();
+				
+				if(choice.equals("1")) {
+					System.out.println("회원가입을 진행하겠습니다.");
+				}
+				else if(choice.equals("2")) {
+					System.out.println("로그인창");
+				}
 		
+				
 				switch (choice) {
 				case "1":
 					NewMember(in,out);
@@ -322,7 +348,6 @@ public class ChatApp {
 					DelMember();
 					break;
 				case "4":
-					out.println("프로그램을 종료합니다.");
 					return ch;
 				default :
 					out.println("잘 못 입력하셨습니다.");
@@ -342,6 +367,7 @@ public class ChatApp {
 			if(count != 3 ) {
 				out.println("1.방만들기");
 				out.println("2.채팅방입장하기");
+				out.println("3.초기화면으로 돌아가기");
 				out.println("현재 만들어진 방의갯수"+count+"개");
 			}
 			else {
@@ -396,13 +422,13 @@ public class ChatApp {
 			} else if (choice.equals("2")){
 				
 				try {
-					for(int i = 0; i < 3; i++) {
+					for(int i = 0; i < RoomTotal.length; i++) {
 //						if(RoomTotal[i] != null) {
 							out.println((i+1) + "."+"방제목:" + "["+RoomTotal[i].title+"]");	
 //						}
 					}
 				} catch (Exception e) {
-					out.println("방을 만들수 있는 최대 게수는 3개입니다.");
+					out.println("====================================");
 				}
 				
 				
@@ -427,6 +453,9 @@ public class ChatApp {
 						RoomTotal[num-1].RoomAllMsg(s,id);
 				}
 			}
+			else if(choice.equals("3")) {
+				return;
+			}
 		}
 		
 		public void sendAllMsg(String user, String msg) {
@@ -447,9 +476,6 @@ public class ChatApp {
 			}
 			
 		}
-		
-
-			
 	}
 }
 
