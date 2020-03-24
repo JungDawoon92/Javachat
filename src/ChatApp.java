@@ -21,11 +21,9 @@ public class ChatApp {
 	ServerSocket serverSocket = null;
 	Socket socket = null;
 	Map<String, PrintWriter> clientMap;
-	
-	Map<String, String> RoomMap1;
-	Map<String, String> RoomMap2;
-	
-	
+	int count = 0;
+	Room[] RoomTotal = new Room[3]; 
+
 	
 	//생성자
 	public ChatApp() {
@@ -33,10 +31,6 @@ public class ChatApp {
 		clientMap = new HashMap<String, PrintWriter>();
 		//해쉬맵 동기화 설정
 		Collections.synchronizedMap(clientMap); // 지금 느끼는건. 누락없이 순서대로 In 하기위해 하는것 같음.
-		
-		RoomMap1 = new HashMap<String, String>();
-		RoomMap2 = new HashMap<String, String>();
-	
 	}
 		
 		
@@ -145,7 +139,7 @@ public class ChatApp {
 				// 이후의 진행은 로그인완료상태
 				clientMap.put(name, out); //해쉬맵에 키를 name 으로 출력스트림 객체를 저장.
 				
-				ShowRoom(name);
+				ShowRoom(name,out);
 				
 				sendAllMsg("", name + "님이 입장하셨습니다.");
 
@@ -301,12 +295,6 @@ public class ChatApp {
 		}
 			
 			
-			
-
-		
-		
-		
-		
 		public void DelMember() {
 			
 		}
@@ -343,80 +331,104 @@ public class ChatApp {
 			}
 		}
 		
-		public void ShowRoom(String name) throws IOException{
+		public void ShowRoom(String name, PrintWriter out) throws IOException{
 			String choice ="" ;
 			String roomname ="";
 			String a = "";
 			String id = name;
-
 			
-			out.println("1.방만들기");
-			out.println("2.채팅방입장하기");
-			out.println("현재 만들어진 방의갯수"+RoomMap1.size()+"개");
+			
+			
+			if(count != 3 ) {
+				out.println("1.방만들기");
+				out.println("2.채팅방입장하기");
+				out.println("현재 만들어진 방의갯수"+count+"개");
+			}
+			else {
+				out.println("1.방만들기(더이상 방을 만들 수 없습니다.)");
+				out.println("2.채팅방입장하기");
+			}
 			
 			choice = in.readLine();
 			
 			if(choice.equals("1")) {
-				out.println("만드실 방이름을 입력해주세요.");
-				roomname = in.readLine();
-				RoomMap1.put(roomname,id);
-				RoomMap2.put(roomname,id);
-				out.println("방이 성공적으로 완성되었습니다.");
-				// 이 아이디값으로 out값을알수있다.
-				//채팅방 대기.
-				//첫번째 만든사람의 아이디+out저장.
-				//두번째 들어온사람의 아이디+out저장.
 				
-				String s = "";
-				while (in!=null) {
-				s = in.readLine();
-				System.out.println(s);
-				
-				if(s.equals("/list"))
-					list(out);
-				else
-					RoomAllMsg(id, s);
+				int i = 0;
+				int b = -1;
+		
+				for(i =0; i < RoomTotal.length; i++) {
+					if(RoomTotal[i] == null) {
+						RoomTotal[i] = new Room();
+						b=i;
+						break;
+					}
+				}
+				int z=0;
+				if(b>=0) {
+					out.println("만드실 방이름을 입력해주세요.");
+					roomname = in.readLine();
+					out.println("방이 성공적으로 완성되었습니다.");
+					z=count;
+					count++;
+				}
+				else if(0 > b){
+					out.println("더이상 방을 만들 수 없습니다.");
+					return;
 				}
 				
+							
+				RoomTotal[z].newRoom(roomname, id, out);
+				System.out.println((z+1) + "."+"방제목:" + "["+RoomTotal[z].title+"]");
+				
+
+				String s = "";
+				while (in!=null) {
+					s = in.readLine();
+					System.out.println(s);
+					
+					if(s.equals("/list"))
+						list(out);
+					else
+						RoomTotal[z].RoomAllMsg(s,id);
+				}
+
 				
 			} else if (choice.equals("2")){
-				Map<Integer, String> RoomMap3 = new HashMap<>();
-				String key;
-				int Roomnumber=1;
 				
-				Set<String> set = RoomMap1.keySet();
-				
-				Iterator<String> it = set.iterator();
-							
-				while(it.hasNext()) {
-					key = (String)it.next();
-					out.println(Roomnumber+"."+key);
-					RoomMap3.put(Roomnumber,roomname);
-					Roomnumber++; //이거는 그냥 list보여주는건데..
+				try {
+					for(int i = 0; i < 3; i++) {
+//						if(RoomTotal[i] != null) {
+							out.println((i+1) + "."+"방제목:" + "["+RoomTotal[i].title+"]");	
+//						}
+					}
+				} catch (Exception e) {
+					out.println("방을 만들수 있는 최대 게수는 3개입니다.");
 				}
 				
-				out.println("들어가실 방번호를 입력하세요");
-				choice = in.readLine();
-				int num = Integer.parseInt(choice);
-				a = RoomMap3.get(num); // 룸네임을 받는다./
 				
-				RoomMap2.put(a,id);
-				out.println(a+" 방에 입장하셨습니다.");
-				RoomMap3.clear();
+				int num;
+				out.println("들어가실 방번호를 입력하세요");
+				
+
 				
 				String s = "";
-				while (in!=null) {
 				s = in.readLine();
-				System.out.println(s);
+				num =  Integer.parseInt(s);
 				
-				if(s.equals("/list"))
-					list(out);
-				else
-					RoomAllMsg(id, s);
+				RoomTotal[num-1].RoomChat(id,out);  // 안되면,out을 줘보자 
+				
+				while (in!=null) {
+					s = in.readLine();
+					System.out.println(s);
+					
+					if(s.equals("/list"))
+						list(out);
+					else
+						RoomTotal[num-1].RoomAllMsg(s,id);
 				}
-				
 			}
 		}
+		
 		public void sendAllMsg(String user, String msg) {
 			
 			// 출력 스트림을 순차적으로 얻어와서 해당 메세지를 출력한다.
@@ -436,26 +448,7 @@ public class ChatApp {
 			
 		}
 		
-			public void RoomAllMsg(String user, String msg) {
-				Iterator<String> at = RoomMap2.keySet().iterator();
-				while (at.hasNext()) {
-					String id = (String)RoomMap2.get(at.next());
-						
-					try {
-						PrintWriter it_out = (PrintWriter) clientMap.get(id);
-						if (user.equals(""))
-							it_out.println(msg);
-						else
-							it_out.println("["+user+"]"+ msg);
-					} catch(Exception e) {
-						System.out.println("예외 :"+e);
-					}
-					
-					
-				}
-					
-			}
-			
+
 			
 	}
 }
