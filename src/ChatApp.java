@@ -22,8 +22,8 @@ public class ChatApp {
 	Socket socket = null;
 	Map<String, PrintWriter> clientMap;
 	
-	Map<String, PrintWriter> RoomMap1;
-//	Map<Integer, String> RoomMap2;
+	Map<String, String> RoomMap1;
+	Map<String, String> RoomMap2;
 	
 	
 	
@@ -34,8 +34,8 @@ public class ChatApp {
 		//해쉬맵 동기화 설정
 		Collections.synchronizedMap(clientMap); // 지금 느끼는건. 누락없이 순서대로 In 하기위해 하는것 같음.
 		
-		RoomMap1 = new HashMap<String, PrintWriter>();
-//		RoomMap2 = new HashMap<Integer, String>();
+		RoomMap1 = new HashMap<String, String>();
+		RoomMap2 = new HashMap<String, String>();
 	
 	}
 		
@@ -349,70 +349,116 @@ public class ChatApp {
 			String a = "";
 			String id = name;
 
-			Map<Integer, String> RoomMap2 = new HashMap<>();
 			
 			out.println("1.방만들기");
 			out.println("2.채팅방입장하기");
+			out.println("현재 만들어진 방의갯수"+RoomMap1.size()+"개");
+			
 			choice = in.readLine();
 			
 			if(choice.equals("1")) {
 				out.println("만드실 방이름을 입력해주세요.");
 				roomname = in.readLine();
-				RoomMap1.put(roomname,out);
+				RoomMap1.put(roomname,id);
+				RoomMap2.put(roomname,id);
 				out.println("방이 성공적으로 완성되었습니다.");
-				//
+				// 이 아이디값으로 out값을알수있다.
 				//채팅방 대기.
 				//첫번째 만든사람의 아이디+out저장.
 				//두번째 들어온사람의 아이디+out저장.
 				
+				String s = "";
+				while (in!=null) {
+				s = in.readLine();
+				System.out.println(s);
+				
+				if(s.equals("/list"))
+					list(out);
+				else
+					RoomAllMsg(id, s);
+				}
+				
 				
 			} else if (choice.equals("2")){
+				Map<Integer, String> RoomMap3 = new HashMap<>();
 				String key;
+				int Roomnumber=1;
+				
 				Set<String> set = RoomMap1.keySet();
 				
 				Iterator<String> it = set.iterator();
 							
-				for(int Roomnumber =1; Roomnumber < RoomMap1.size()+1; it.hasNext()) {
+				while(it.hasNext()) {
 					key = (String)it.next();
 					out.println(Roomnumber+"."+key);
-					RoomMap2.put(Roomnumber,roomname);
-					Roomnumber++;
+					RoomMap3.put(Roomnumber,roomname);
+					Roomnumber++; //이거는 그냥 list보여주는건데..
 				}
 				
+				out.println("들어가실 방번호를 입력하세요");
 				choice = in.readLine();
-				a = RoomMap2.get(choice); // 룸네임을 받는다./룸네임을 키값으로 out을 받는다.
-
+				int num = Integer.parseInt(choice);
+				a = RoomMap3.get(num); // 룸네임을 받는다./
+				
+				RoomMap2.put(a,id);
+				out.println(a+" 방에 입장하셨습니다.");
+				RoomMap3.clear();
+				
+				String s = "";
+				while (in!=null) {
+				s = in.readLine();
+				System.out.println(s);
+				
+				if(s.equals("/list"))
+					list(out);
+				else
+					RoomAllMsg(id, s);
+				}
+				
 			}
 		}
-				public void sendAllMsg(String user, String msg) {
-					
-					// 출력 스트림을 순차적으로 얻어와서 해당 메세지를 출력한다.
-					Iterator<String> it = clientMap.keySet().iterator();
-					
-					while (it.hasNext()) {
-						try {
-							PrintWriter it_out = (PrintWriter) clientMap.get(it.next());
-							if (user.equals(""))
-								it_out.println(msg);
-							else
-								it_out.println("["+user+"]"+ msg);
-						} catch(Exception e) {
-							System.out.println("예외 :"+e);
-						}
-					}
+		public void sendAllMsg(String user, String msg) {
+			
+			// 출력 스트림을 순차적으로 얻어와서 해당 메세지를 출력한다.
+			Iterator<String> it = clientMap.keySet().iterator();
+			
+			while (it.hasNext()) {
+				try {
+					PrintWriter it_out = (PrintWriter) clientMap.get(it.next());
+					if (user.equals(""))
+						it_out.println(msg);// ~님이 입장하셨습니다. 퇴장하셨습니다 를 만들기위한 장치.
+					else
+						it_out.println("["+user+"]"+ msg);
+				} catch(Exception e) {
+					System.out.println("예외 :"+e);
 				}
+			}
+			
+		}
+		
+			public void RoomAllMsg(String user, String msg) {
+				Iterator<String> at = RoomMap2.keySet().iterator();
+				while (at.hasNext()) {
+					String id = (String)RoomMap2.get(at.next());
+						
+					try {
+						PrintWriter it_out = (PrintWriter) clientMap.get(id);
+						if (user.equals(""))
+							it_out.println(msg);
+						else
+							it_out.println("["+user+"]"+ msg);
+					} catch(Exception e) {
+						System.out.println("예외 :"+e);
+					}
+					
+					
+				}
+					
+			}
+			
+			
 	}
 }
-
-//while (in!=null) {
-//s = in.readLine();
-//System.out.println(s);
-//
-//if(s.equals("/list"))
-//	list(out);
-//else
-//	sendAllMsg(cha, s);
-//}
 
 
 
