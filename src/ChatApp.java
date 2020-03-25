@@ -344,6 +344,7 @@ public class ChatApp {
 					out.println("3.초기화면으로 돌아가기");
 					out.println("현재 만들어진 방의갯수"+count+"개");
 				}
+				
 				else {
 					out.println("1.방만들기(더이상 방을 만들 수 없습니다.)");
 					out.println("2.채팅방입장하기");
@@ -465,7 +466,7 @@ public class ChatApp {
 						}
 						else if(s.equals("/out")) {
 							out.println("채팅방에서 나가셨습니다.");
-							RoomTotal[num-1].RoomChat(id,out);
+							RoomTotal[num-1].RoomAllMsg(s,id);
 							break;
 						}
 						else
@@ -504,6 +505,13 @@ public class ChatApp {
 			}
 			
 		}
+		
+		
+		
+		
+		
+		
+		
 	}
 }
 

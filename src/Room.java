@@ -39,6 +39,7 @@ public class Room {
 				else if(msg.equals("/out")) {
 					RoomMap.remove(id);
 					System.out.println("실행되었습니다.");
+					return;
 				}
 				else
 					it_out.println("["+id+"]"+ msg);
