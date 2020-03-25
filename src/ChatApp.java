@@ -144,13 +144,10 @@ public class ChatApp {
 						out.println("프로그램을 종료합니다. 이용해주셔서 감사합니다.");
 						break;
 					} else {
-						clientMap.put(name, out); //해쉬맵에 키를 name 으로 출력스트림 객체를 저장.
-						
 						ShowRoom(name,out);
 					}
 				}
 			
-				
 			} catch(Exception e) {
 				System.out.println("예외:"+e);
 			} finally {
@@ -170,22 +167,6 @@ public class ChatApp {
 				}
 			}
 		}
-		
-		
-//		// 접속자 리스트 보내기
-//		public void list(PrintWriter out) {
-//			// 출력스트림을 순차적으로 얻어와서 해당 메세지를 출력한다.
-//			Iterator<String> it = clientMap.keySet().iterator();
-//			String msg = "사용자 리스트[";
-//			while (it.hasNext()) {
-//				msg += (String)it.next() + ",";
-//			}
-//			msg = msg.substring(0,msg.length()-1) +"]";
-//			try {
-//				out.println(msg);
-//			} catch (Exception e) {
-//			}
-//		}
 		
 		public void NewMember(BufferedReader in, PrintWriter out) throws IOException {
 		
@@ -341,13 +322,15 @@ public class ChatApp {
 				if(count != 3 ) {
 					out.println("1.방만들기");
 					out.println("2.채팅방입장하기");
-					out.println("3.초기화면으로 돌아가기");
+					out.println("3.공개방으로가기");
+					out.println("4.초기화면으로 돌아가기");
 					out.println("현재 만들어진 방의갯수"+count+"개");
 				}
 				
 				else {
 					out.println("1.방만들기(더이상 방을 만들 수 없습니다.)");
 					out.println("2.채팅방입장하기");
+					out.println("3.공개방으로가기");
 					out.println("3.초기화면으로 돌아가기");
 					out.println("현재 만들어진 방의갯수"+count+"개");
 				}
@@ -433,8 +416,6 @@ public class ChatApp {
 					
 	//========================================================================================================================================
 					
-					
-					
 				} else if (choice.equals("2")){
 					
 					try {
@@ -448,40 +429,114 @@ public class ChatApp {
 					}
 					
 					int num;
-					out.println("들어가실 방번호를 입력하세요");
+					out.println("들어가실 방번호를 입력하세요. 나가기  숫자3");
 				
 					String s = "";
-					s = in.readLine();
-					num =  Integer.parseInt(s);
-					
-					RoomTotal[num-1].RoomChat(id,out); 
-					
-					
-					while (in!=null) {
+					while(true) {
 						s = in.readLine();
-						
-						if(RoomTotal[num-1]==null) {
-							out.println("방이 폭파되었습니다. 로비로이동합니다.");
-							break;
+						num =  Integer.parseInt(s);
+						if(num==3) {
+							ShowRoom(name,out);
 						}
-						else if(s.equals("/out")) {
-							out.println("채팅방에서 나가셨습니다.");
-							RoomTotal[num-1].RoomAllMsg(s,id);
+						
+						if(RoomTotal[num-1].fullroom()==0) {
 							break;
 						}
 						else
-							RoomTotal[num-1].RoomAllMsg(s,id);
+							out.println("방이 가득 찾습니다.");
+					}
+//					s = in.readLine();
+//					num =  Integer.parseInt(s);
+					
+					
+					RoomTotal[num-1].RoomAllMsg("",id+"님이 입장하셨습니다.");
+					RoomTotal[num-1].RoomChat(id,out); 
+					
+					try {
+						while (in!=null) {
+							s = in.readLine();
+							
+							if(RoomTotal[num-1]==null) {
+								out.println("방이 폭파되었습니다. 로비로이동합니다.");
+								break;
+							}
+							else if(s.equals("/out")) {
+								out.println("채팅방에서 나가셨습니다.");
+								RoomTotal[num-1].RoomAllMsg("", name + "님이 퇴장하셨습니다.");
+								RoomTotal[num-1].RoomAllMsg(s,id);
+								ShowRoom(name,out);
+								break;
+							}
+							else
+								RoomTotal[num-1].RoomAllMsg(s,id);
+						}
+					} catch(Exception e) {
+						System.out.println("예외:"+e);
+					} finally {
+						RoomTotal[num-1].RoomAllMsg("", name + "님이 퇴장하셨습니다.");
+						RoomTotal[num-1].RoomAllMsg(s,id);
+						RoomTotal[num-1].emptyroom();
+						clientMap.remove(name);
+						try {
+							in.close();
+							out.close();
+							socket.close();
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
 					}
 				}
 				
-				
-				
 				else if(choice.equals("3")) {
+					
+					try {						
+						sendAllMsg("", name + "님이 입장하셨습니다.");
+						
+						clientMap.put(name, out); 
+						
+						String s = "";
+						while (in!=null) {
+							s = in.readLine();
+							System.out.println(s);
+							
+							if(s.equals("/list"))
+								list(out);
+							
+							else if(s.equals("/out")) {
+								out.println("로비로 이동합니다.");
+								clientMap.remove(name);
+								sendAllMsg("", name + "님이 퇴장하셨습니다.");
+								ShowRoom(name,out);
+							}
+							else
+								sendAllMsg(name, s);
+						}
+						
+					} catch(Exception e) {
+						System.out.println("예외:"+e);
+					} finally {
+						//예외가 발생할때 퇴장. 해쉬맵에서 해당 데이터 제거.
+						//보통 종료하거나 나가면 java.net.SocketException : 예외 발생.
+						
+						clientMap.remove(name);
+						sendAllMsg("", name + "님이 퇴장하셨습니다.");
+						System.out.println("현재 접속자 수는 " +clientMap.size()+"명 입니다.");
+						
+						try {
+							in.close();
+							out.close();
+							
+							socket.close();
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				
+				else if(choice.equals("4")) {
 					return;
 				}
-			
 			}
-			
 		}
 		
 		
@@ -506,9 +561,20 @@ public class ChatApp {
 			
 		}
 		
-		
-		
-		
+		// 접속자 리스트 보내기
+				public void list(PrintWriter out) {
+					// 출력스트림을 순차적으로 얻어와서 해당 메세지를 출력한다.
+					Iterator<String> it = clientMap.keySet().iterator();
+					String msg = "사용자 리스트[";
+					while (it.hasNext()) {
+						msg += (String)it.next() + ",";
+					}
+					msg = msg.substring(0,msg.length()-1) +"]";
+					try {
+						out.println(msg);
+					} catch (Exception e) {
+					}
+				}
 		
 		
 		
