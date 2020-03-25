@@ -43,5 +43,25 @@ public class Room {
 		}
 		
 	}
-
+	
+//      public String out(String msg, String id) {
+//		
+//		// 출력 스트림을 순차적으로 얻어와서 해당 메세지를 출력한다.
+//		Iterator<String> it = RoomMap.keySet().iterator();
+//		
+//		while (it.hasNext()) {
+//			try {
+//				PrintWriter it_out = (PrintWriter) RoomMap.get(it.next());
+//				if (id.equals(""))
+//					it_out.println(msg);// ~님이 입장하셨습니다. 퇴장하셨습니다 를 만들기위한 장치.
+//				else {
+//					it_out.println("["+id+"]"+ msg);
+//				}
+//					
+//			} catch(Exception e) {
+//				System.out.println("예외 :"+e);
+//			}
+//		}
+//		return "/out";	
+//	}
 }
