@@ -12,8 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.StringTokenizer;
 
 
 public class ChatApp {
@@ -37,6 +36,9 @@ public class ChatApp {
 	PreparedStatement pstmt1;
 	PreparedStatement pstmt2;
 	PreparedStatement pstmt3;
+	PreparedStatement pstmt4;
+	PreparedStatement pstmt5;
+	PreparedStatement pstmt6;
 	String ip;
 	
 
@@ -122,6 +124,7 @@ public class ChatApp {
 			
 			try {
 				String wow="";
+				out.println("아무글자나치세용");
 				wow=in.readLine();
 				out.println(wow+"님 환영합니다.");
 				
@@ -200,27 +203,38 @@ public class ChatApp {
 					System.out.println("알 수 없는 에러가 발생했습니다.");
 				}
 			}
-			
-			sql = "insert into ClientInfo values(?, ?, ?, ?)";
-			out.println("비밀번호  : ");
-			String pwd = in.readLine();
-			out.println("별명 : ");
-			String cha = in.readLine();
-			
-			
-			try {
-				pstmt1 = con.prepareStatement(sql);
-				pstmt1.setString(1, id);
-				pstmt1.setString(2, pwd);
-				pstmt1.setString(3, ip);
-				pstmt1.setString(4, cha);
-				int updateCount = pstmt1.executeUpdate();
-				System.out.println("데이터베이스에 추가되었습니다.");
+			while(true) {
+				sql = "insert into ClientInfo (ID, pwd, ip, cha)values(?, ?, ?, ?)";
+				out.println("비밀번호  : ");
+				String pwd = in.readLine();
+				out.println("별명 : ");
+				String cha = in.readLine();
 				
 				
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("데이터베이스 입력 에러입니다.");
+				try {
+					pstmt1 = con.prepareStatement(sql);
+					pstmt1.setString(1, id);
+					pstmt1.setString(2, pwd);
+					pstmt1.setString(3, ip);
+					pstmt1.setString(4, cha);
+					int updateCount = pstmt1.executeUpdate();
+					out.println("진심으로 축하합니다. 가입이 완료되었습니다!");
+					out.println("로그인을 진행해주세요!");
+					break;
+					
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+					out.println("중복 아이피로 가입이 불가합니다.문의 있을시 관리자를 찾으세요.");
+					out.println("중복 아이피로 가입이 불가합니다.문의 있을시 관리자를 찾으세요.");
+					out.println("중복 아이피로 가입이 불가합니다.문의 있을시 관리자를 찾으세요.");
+					out.println("중복 아이피로 가입이 불가합니다.문의 있을시 관리자를 찾으세요.");
+					out.println("중복 아이피로 가입이 불가합니다.문의 있을시 관리자를 찾으세요.");
+					out.println("중복 아이피로 가입이 불가합니다.문의 있을시 관리자를 찾으세요.");
+					out.println("중복 아이피로 가입이 불가합니다.문의 있을시 관리자를 찾으세요.");
+					out.println("중복 아이피로 가입이 불가합니다.문의 있을시 관리자를 찾으세요.");
+					return;
+				}
 			}
 		}
 			
@@ -236,6 +250,9 @@ public class ChatApp {
 				
 				String Did = ""; // 데이터베이스에있는 id
 				String Dpw = ""; // 데이터베이스에있는 비밀번호
+				int money1 = 0; // 데이터베이스에있는 돈
+				int coco; //계급나누는장치
+				
 
 				
 				String sql = "select * from ClientInfo where id = ?";
@@ -247,10 +264,32 @@ public class ChatApp {
 					if(rs.next()) {
 						Did = rs.getString(1);
 						Dpw = rs.getString(2);
+						money1 = rs.getInt(5);
 						
 						if(id.equals(Did) && pwd.equals(Dpw)) {
-							out.println("로그인되셨습니다.");
 							
+							coco = money1;
+							String grade="";
+							
+							if(coco == 10000) {
+								grade = "서민";
+							}
+							else if(10000 >= coco) {
+								grade = "노예";
+							}
+							else if(coco >= 10000 && 100000 > coco) {
+								grade = "평민";
+							}
+							else if(coco >= 100000 && 300000 > coco) {
+								grade = "귀족";
+							}
+							else if(coco >= 300000) {
+								grade = "왕족";
+							}
+							
+							
+							out.println("로그인되셨습니다.");
+							Did=Did+"("+grade+")"+"  [현금보유:"+money1+"원]";
 							return Did; // 로그인이되면 return이아닌 채팅방 입장.
 						} else {
 							out.println("아이디나 비밀번호가 틀립니다.");
@@ -287,7 +326,7 @@ public class ChatApp {
 				out.println(" ");
 				out.println("2번 :  기존회원");
 				out.println(" ");
-				out.println("3번 :  회원탈퇴(구현예정)");
+				out.println("3번 :  회원탈퇴(구현예정) 누르면 오류");
 				out.println(" ");
 				out.println("4번 :  종료하기");
 				out.println("=====================================================");
@@ -333,17 +372,20 @@ public class ChatApp {
 				if(count != 3 ) {
 					out.println("=====================================================");
 					out.println(" ");
-					out.println("1.게임방만들기");
+					out.println("1.게임방만들기(판돈 5천원)");
 					out.println(" ");
-					out.println("2.(승부)게임방입장하기");
+					out.println("2.(승부)게임방입장하기(판돈 5천원)");
+					out.println("*****현재 만들어진 방의갯수"+count+"개*****");
 					out.println(" ");
-					out.println("3.(대화)대기실로가기-----꼭 먼저 이용해서 채팅을쳐보세요.");
 					out.println(" ");
-					out.println("4.돈벌기(용무기강화게임)--9강성공시 3만원!");
+					out.println("3.(대화)대기실로가기-----꼭 먼저 이용해서 채팅을쳐보세요!");
+					out.println(" ");
+					out.println(" ");
+					out.println("4.돈벌기(용무기강화게임)--9강성공시 ===3만원!===");
+					out.println(" ");
 					out.println(" ");
 					out.println("5.로그인창으로 돌아가기");
 					out.println(" ");
-					out.println("현재 만들어진 방의갯수"+count+"개");
 					out.println(" ");
 					out.println("=====================================================");
 				}
@@ -353,275 +395,649 @@ public class ChatApp {
 					out.println(" ");
 					out.println("1.게임방만들기(더이상 방을 만들 수 없습니다.)");
 					out.println(" ");
-					out.println("2.(승부)게임방입장하기");
+					out.println("2.(승부)게임방입장하기(판돈 5천원)");
+					out.println("*****현재 만들어진 방의갯수"+count+"개*****");
+					out.println(" ");
 					out.println(" ");
 					out.println("3.(채팅방)대기실로가기-----꼭 먼저 이용해서 채팅을쳐보세요.");
 					out.println(" ");
-					out.println("4.돈벌기(용무기강화게임)--9강성공시 3만원!");
+					out.println(" ");
+					out.println("4.돈벌기(용무기강화게임)--9강성공시 ===3만원!===");
+					out.println(" ");
 					out.println(" ");
 					out.println("5.로그인창으로 돌아가기");
 					out.println(" ");
-					out.println("현재 만들어진 방의갯수"+count+"개");
 					out.println(" ");
 					out.println("=====================================================");
 				}
 				
-				choice = in.readLine();
+				String s2 = id.substring(id.indexOf(":") + 1);
+				id.substring(id.indexOf(":") + 1, id.indexOf(":") + 1 + s2.indexOf("원") );
 				
-				if(choice.equals("1")) {
-					
-					int i = 0;
-					int b = -1;
-			
-					for(i =0; i < RoomTotal.length; i++) {
-						if(RoomTotal[i] == null) {
-							b=i;
-							break;
-						}
-					}
-					int z=0;
-					if(b>=0) {
-						out.println("만드실 방이름을 입력해주세요. (나가기는 숫자2)");
-						roomname = in.readLine();
-						if(roomname.equals("2"))
-							return;
-						out.println("방이 성공적으로 완성되었습니다.");
-						out.println("   ");
-						out.println("참가자를 기다리는 중입니다...");
-						RoomTotal[b] = new Room();
-						z=count;
-						count++;
-					}
-					
-					
-					else if(0 > b){
-						out.println("더이상 방을 만들 수 없습니다.");
-						break;
-					}
-					
-								
-					RoomTotal[z].newRoom(roomname, id, out);
-					System.out.println((z+1) + "."+"방제목:" + "["+RoomTotal[z].title+"]");
-							
-					//채팅
-					String s = "";
-					
-					int h = count;//카운트 숫자조절 안전장치
-					
-					try {
-						while (in != null) {
-							s = in.readLine();
-							System.out.println(s);
-			
-							if(s.equals("/out")) {
-								s="방장님이 나가셨습니다";
-								RoomTotal[z].RoomAllMsg(s,id);
-								RoomTotal[z]=null;
-								h=count;
-								count--;
-								ShowRoom(name,out);
-							}
-							
-							else
-								RoomTotal[z].RoomAllMsg(s,id);
-						}
-					} catch(Exception e) {
-						System.out.println("예외:"+e);
-					} finally {
-						clientMap.remove(name);
-						RoomTotal[z]=null;
-						
-						if(h==count)
-						count--;
-						
-						try {
-							in.close();
-							out.close();
-							socket.close();
-						} catch(Exception e) {
-							e.printStackTrace();
-						}
-					}
-					
-	//========================================================================================================================================
-					
-				} else if (choice.equals("2")){
-					
-					try {
-						for(int i = 0; i < RoomTotal.length; i++) {
-								out.println((i+1) + "."+"방제목:" + "["+RoomTotal[i].title+"]");	
-							
-						}
-					} catch (Exception e) {
-						out.println("====================================");
-					}
-					
-					int num;
-					out.println("들어가실 방번호를 입력하세요. 나가기  숫자3");
+				int n = Integer.parseInt(id.substring(id.indexOf(":") + 1, id.indexOf(":") + 1 + s2.indexOf("원")));
 				
-					String s = "";
-					while(true) {
-						s = in.readLine();
-						num =  Integer.parseInt(s);
-						if(num==3) {
-							ShowRoom(name,out);
-						}
-						
-						if(RoomTotal[num-1].fullroom()==0) {
-							break;
+				while(true) {
+					
+					choice = in.readLine();
+					
+					if(choice.equals("1") || choice.equals("2")) {
+						if(5000 > n) 
+						{
+							out.println("돈이부족합니다. (3)번 대기실과 (4)번 '게임'으로 돈벌기 밖에 이용하지 못하십니다.");
+							continue;
 						}
 						else
-							out.println("방이 가득 찾습니다.");
+							break;
 					}
-
-					
-					out.println("방에 입장하셨습니다.");
-					RoomTotal[num-1].RoomAllMsg("",id+"님이 입장하셨습니다.");
-					RoomTotal[num-1].RoomChat(id,out); 
-					
-					try {
-						while (in!=null) {
-							s = in.readLine();
-							
-							if(RoomTotal[num-1]==null) {
-								out.println("방장님이 방을 나갔습니다. 로비로이동합니다.");
-								ShowRoom(name,out);
-							}
-							else if(s.equals("/out")) {
-								out.println("채팅방에서 나가셨습니다.");
-								RoomTotal[num-1].RoomAllMsg("", name + "님이 퇴장하셨습니다.");
-								RoomTotal[num-1].RoomAllMsg(s,id);
-								ShowRoom(name,out);
-							}
-							else
-								RoomTotal[num-1].RoomAllMsg(s,id);
-						}
-					} catch(Exception e) {
-						System.out.println("예외:"+e);
-					} finally {
-						RoomTotal[num-1].RoomAllMsg("", name + "님이 퇴장하셨습니다.");
-						RoomTotal[num-1].RoomAllMsg(s,id);
-						RoomTotal[num-1].emptyroom();
-						clientMap.remove(name);
-						
-						try {
-							in.close();
-							out.close();
-							socket.close();
-						} catch(Exception e) {
-							e.printStackTrace();
-						}
-					}
+					else				
+					     break;
 				}
 				
-				else if(choice.equals("3")) {
-					out.println("=====================================================");
-					out.println(" ");
-					out.println("  공개채팅방에 입장하셨습니다   ");
-					out.println(" ");
-					out.println("*기능* /list 참여자보기 /out 로비로가기 ");
-					out.println(" ");
-					out.println("다른기능 없음 구현 예정 ㅎ-ㅎ");
-					out.println(" ");
-					out.println("=====================================================");
-					out.println("채팅방");
-					try {
-						sendAllMsg("", name + "님이 입장하셨습니다.");
+					
+					if(choice.equals("1")) {
 						
-						clientMap.put(name, out); 
+						int i = 0;
+						int b = -1;
+				
+						for(i =0; i < RoomTotal.length; i++) {
+							if(RoomTotal[i] == null) {
+								b=i;
+								break;
+							}
+						}
+						int z=0;
+						if(b>=0) {
+							out.println("만드실 방이름을 입력해주세요. (나가기는 숫자2)");
+							roomname = in.readLine();
+							if(roomname.equals("2"))
+								return;
+							out.println("=====================================================");
+							out.println("방이 성공적으로 완성되었습니다.");
+							out.println("대화가 가능한 채팅방입니다.");
+							out.println("/out을 치면 로비로 나갑니다.");
+							out.println("가위바위보게임(판돈5000원) 진행원할시 /start 라고 치면됩니다.");
+							out.println("참가자가 /ready하면 자동 시작됩니다.");
+							out.println("   ");
+							out.println("참가자를 기다리는 중입니다...");
+							out.println("   ");
+							out.println("=====================================================");
+							RoomTotal[b] = new Room();
+							z=count;
+							count++;
+						}
+						
+						
+						else if(0 > b){
+							out.println("더이상 방을 만들 수 없습니다.");
+							break;
+						}
+						
+									
+						RoomTotal[z].newRoom(roomname, id, out);
+						System.out.println((z+1) + "."+"방제목:" + "["+RoomTotal[z].title+"]");
+								
+						//채팅
+						String s = "";
+						
+						int h = count;//카운트 숫자조절 안전장치
+						
+						try {
+							while (in != null) {
+								s = in.readLine();
+								System.out.println(s);
+				
+								if(s.equals("/out")) {
+									s="방장님이 나가셨습니다";
+									RoomTotal[z].RoomAllMsg(s,id);
+									RoomTotal[z]=null;
+									h=count;
+									count--;
+									ShowRoom(name,out);
+								}
+								
+								///------------------------------------------------------------------------------------게임로직-----------------------------------------
+								
+								else if(s.equals("/start")) { //준비과정
+									RoomTotal[z].RoomAllMsg("방장님이 게임 준비완료되셨습니다. /ready 를눌러주세요","공지");
+									RoomTotal[z].RoomAllMsg("채팅은 진행되지않습니다 /ready 를눌러주세요.","공지");
+									s=RoomTotal[z].gameready(id,out);   // game ready는 다른사용자가 ready박을때까지 기다려준다.
+									out.println(s);
+									
+									
+									while(true) { // game ready 검사해주는것.
+										s=RoomTotal[z].game(id,s);
+										if(s.equals("start")) {
+											break;
+										}
+										System.out.print("");  // 이게 없으면 안돌아감 연구할 가치가 있음.3/26
+									}
+									
+									out.println("   ");
+									out.println("XXXXXXXXXXXXXXXXXXX 게임을 시작합니다 XXXXXXXXXXXXXX");
+									out.println("   ");
+									out.println("XXXXXXXXXXXXXXXXXXX 게임을 시작합니다 XXXXXXXXXXXXXX");
+									out.println("   ");
+									out.println("가위(1),바위(2),보(3) 숫자를 입력하세요.");
+			
+									while(true) {
+										   String master = "";
+										    
+										   s = in.readLine();
+										   
+										   master = s;
+										   
+										   if(s.equals("1") || s.equals("2") || s.equals("3") ) {
+										
+											  
+											   RoomTotal[z].startcount(id,s); //상대방 기다리는 카운트.
+											   
+											   while(true) {
+												   s=RoomTotal[z].gamestart();
+												   if(s.equals("start"))
+												   break;
+												   System.out.print("");
+											   }
+											   
+											   s=RoomTotal[z].result(id);
+											   
+											   if(s.equals("1")) { // 상대방이 가위
+												   if(master.equals("1")) {
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   run();
+												   }
+												   else if(master.equals("2")){
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");								   
+													   
+													   vetwin(id);
+													   run();
+												   }
+												   else if(master.equals("3")){
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   vetlose(id);
+													   run();
+												   }
+											   }
+											   else if(s.equals("2")) { // 상대방이 바위
+												   if(master.equals("1")){
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   vetlose(id);
+													   run();
+												   }
+												   else if(master.equals("2")) {
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   run();
+												   }
+												   else if(master.equals("3")){
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");	
+													   vetwin(id);
+													   run();
+												   }
+											   }
+											   
+											   else if(s.equals("3")){ // 상대방이 보
+												   if(master.equals("1")){
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");	
+													   vetwin(id);
+													   run();
+												   }
+												   else if(master.equals("2")){
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   vetlose(id);
+													   run();
+												   }
+												   else if(master.equals("3")) {
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   run();
+												   }
+											   }
+										   }
+										   else
+											out.println("가위(1)/바위(2)/보(3) 중에 하나만 입력해주세요.");
+									   }								
+								}
+								else
+									RoomTotal[z].RoomAllMsg(s,id);
+							}
+						} catch(Exception e) {
+							System.out.println("예외:"+e);
+						} finally {
+							clientMap.remove(name);
+							RoomTotal[z]=null;
+							
+							if(h==count)
+							count--;
+							
+							try {
+								in.close();
+								out.close();
+								socket.close();
+							} catch(Exception e) {
+								e.printStackTrace();
+							}
+						}
+						
+		//========================================================================================================================================
+						
+					} else if (choice.equals("2")){
+						
+						try {
+							for(int i = 0; i < RoomTotal.length; i++) {
+									out.println((i+1) + "."+"방제목:" + "["+RoomTotal[i].title+"]");	
+								
+							}
+						} catch (Exception e) {
+							out.println("====================================");
+						}
+						
+						int num;
+						out.println("들어가실 방번호를 입력하세요. 나가기  숫자5");
 						
 						String s = "";
-						while (in!=null) {
-							s = in.readLine();
-							System.out.println(s);
-							
-							if(s.equals("/list"))
-								list(out);
-							
-							else if(s.equals("/out")) {
-								out.println("선택지로 이동합니다.");
-								clientMap.remove(name);
-								sendAllMsg("", name + "님이 퇴장하셨습니다.");
+					
+						while(true) {
+							while(true) {
+								   s = in.readLine();
+								   if(s.equals("1") || s.equals("2") || s.equals("3") || s.equals("5")) {
+									    num =  Integer.parseInt(s);
+										break; 
+								   }
+								   else
+									out.println("들어가실 방 숫자를 입력해주세요. 나가기 숫자5");
+							   }
+							if(num==5) {
 								ShowRoom(name,out);
 							}
-							else
-								sendAllMsg(name, s);
-						}
-						
-					} catch(Exception e) {
-						System.out.println("예외:"+e);
-					} finally {
-						
-						clientMap.remove(name);
-						sendAllMsg("", name + "님이 퇴장하셨습니다.");
-						
-						try {
-							in.close();
-							out.close();
 							
-							socket.close();
-						} catch(Exception e) {
-							e.printStackTrace();
+							if(RoomTotal[num-1].fullroom()==0) {
+								break;
+							}
+							else
+								out.println("방이 가득 찾습니다.");
 						}
-					}
-				}
-				
-				else if(choice.equals("4")) {
-					
-					
-					try {
-						out.println("용무기 강화 게임을 시작합니다.");
-						out.println("X공지사항X");
-						out.println("게임속 돈은 원래 계정의 돈에 영향을 주지않습니다. 9강성공시에 30000원을 드립니다!");
-						out.println("  ");
-						out.println("처음에 시작하거나, 무기가 파괴되었을때 다시 try하는 비용은 1000원입니다.");
-						out.println("소지금이 0원이면 Game Over 입니다.");
-						out.println("  ");
+
+						out.println("=====================================================");
+						out.println("방에 입장하셨습니다.");
+						out.println("대화가 가능한 채팅방입니다.");
+						out.println("/out을 치면 로비로 나갑니다.");
+						out.println("게임 진행원할시 /ready 라고 치면됩니다.");
+						out.println("방장이 /start 하면 자동 시작됩니다.");
+						out.println("=====================================================");
 						
+						RoomTotal[num-1].RoomAllMsg("",id+"님이 입장하셨습니다.");
+						RoomTotal[num-1].RoomChat(id,out); 
 						
-						Good gms = new Good();
-						
-						for(int i=1; i>0; i++) {	
-							   int money = gms.money;
-							   if(money < 1000) {
-								   out.println("돈이 부족합니다. Game Over");
-								   ShowRoom(name,out);
-							   }
-							   out.println("  ");
-							   out.println("용무기 강화에 도전하시겠습니까? \n 1강->2강 확률90%  (도전 1 입력/게임종료 2 입력)");
-							   out.println("  ");
-							   out.printf("소지금  %d원 [용무기는 1000원 입니다.] \n",money);
-							   
-							   String s = in.readLine();
-							   int trS =Integer.parseInt(s);
-							   
-							   if(trS == 1) {
-								   gms.Goodgame(in,out);
-							   }
-							   else if(trS == 2) {
-								  System.out.println("게임을 종료합니다.");
-								  ShowRoom(name,out);
-							   }
-						   }
-					} catch(Exception e) {
-						System.out.println("예외:"+e);
-					} finally {
 						try {
-							in.close();
-							out.close();
-							socket.close();
+							while (in!=null) {
+								s = in.readLine();
+								
+								if(RoomTotal[num-1]==null) {
+									out.println("방장님이 방을 나갔습니다. 로비로이동합니다.");
+									ShowRoom(name,out);
+								}
+								else if(s.equals("/out")) {
+									out.println("채팅방에서 나가셨습니다.");
+									RoomTotal[num-1].RoomAllMsg("", name + "님이 퇴장하셨습니다.");
+									RoomTotal[num-1].RoomAllMsg(s,id);
+									ShowRoom(name,out);
+								
+								}
+						////////--게임로직------------------------------------------------------------------------------------
+								
+								
+								else if(s.equals("/ready")) { //준비과정
+									RoomTotal[num-1].RoomAllMsg(id+"님이 게임 준비완료하셨습니다.","공지");
+									RoomTotal[num-1].RoomAllMsg("채팅은 진행되지않습니다 /ready 를눌러주세요.","공지");
+									s=RoomTotal[num-1].gameready(id,out);
+									out.println(s);
+									
+									
+									while(true) {
+										s=RoomTotal[num-1].game(id,s);
+										if(s.equals("start")) {
+											break;
+										}
+										System.out.print("");  // 이게 없으면 안돌아감 연구할 가치가 있음.3/26
+									}								
+									
+									out.println("   ");
+									out.println("XXXXXXXXXXXXXXXXXXX 게임을 시작합니다 XXXXXXXXXXXXXX");
+									out.println("   ");
+									out.println("XXXXXXXXXXXXXXXXXXX 게임을 시작합니다 XXXXXXXXXXXXXX");
+									out.println("   ");
+									out.println("가위(1),바위(2),보(3) 숫자를 입력하세요.");
+									
+									
+									while(true) {
+										
+										   String master = "";
+										   s = in.readLine();
+										   master = s;
+										   
+										   RoomTotal[num-1].startcount(id,s); //상대방 기다리는 카운트.
+										   
+										   if(s.equals("1") || s.equals("2") || s.equals("3") ) {
+											   
+											   while(true) {
+												   s=RoomTotal[num-1].gamestart();
+												   if(s.equals("start")) {
+													   break;   
+												   }
+												   System.out.print("");
+											   }
+											   
+											   s=RoomTotal[num-1].result(id);
+											   
+											   if(s.equals("1")) {//상대방이 가위
+												   if(master.equals("1")) {
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   run();
+												   }
+												   else if(master.equals("2")) {
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");	
+													   vetwin(id);
+													   run();
+												   }
+												   else if(master.equals("3")){
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   vetlose(id);
+													   run();
+												   }
+											   }
+											   else if(s.equals("2")) {//상대방이 바위
+												   if(master.equals("1")){
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   vetlose(id);
+													   run();
+												   }
+												   else if(master.equals("2")) {
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   run();
+												   }
+												   else if(master.equals("3")) {
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");	
+													   vetwin(id);
+													   run();
+												   }
+											   }
+											   
+											   else if(s.equals("3")){//상대방이 보
+												   if(master.equals("1")) {
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");
+													   out.println("XXXXX이기셨습니다 축하드립니다! (소지금 +5000) XXXXX");	
+													   vetwin(id);
+													   run();
+												   }
+												   else if(master.equals("2")){
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   out.println("지셨습니다.소지금 -5000원");
+													   vetlose(id);
+													   run();
+												   }
+												   else if(master.equals("3")) {
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   out.println("비기셨습니다. 소지금은 그대로입니다.");
+													   run();
+												   }
+											   }
+										   }
+										   else
+											out.println("가위(1)/바위(2)/보(3) 중에 하나만 입력해주세요.");
+									   }
+									
+									//----------------------------------------------------------------------------------------------------------------------
+									
+								}
+								
+								
+								
+								
+								
+								//-------------------------게임로직-------------------------------------------------------------------
+								else
+									RoomTotal[num-1].RoomAllMsg(s,id);
+							}
 						} catch(Exception e) {
-							e.printStackTrace();
+							System.out.println("예외:"+e);
+						} finally {
+							RoomTotal[num-1].RoomAllMsg("", name + "님이 퇴장하셨습니다.");
+							RoomTotal[num-1].RoomAllMsg(s,id);
+							RoomTotal[num-1].emptyroom();
+							clientMap.remove(name);
+							
+							try {
+								in.close();
+								out.close();
+								socket.close();
+							} catch(Exception e) {
+								e.printStackTrace();
+							}
 						}
 					}
-				}
+					
+					else if(choice.equals("3")) {
+						out.println("=====================================================");
+						out.println(" ");
+						out.println("  공개채팅방에 입장하셨습니다   ");
+						out.println(" ");
+						out.println("*기능* /list 참여자보기 /out 로비로가기 ");
+						out.println(" ");
+						out.println("다른기능 없음 구현 예정 ㅎ-ㅎ");
+						out.println(" ");
+						out.println("=====================================================");
+						out.println("채팅방");
+						try {
+							sendAllMsg("", name + "님이 입장하셨습니다.");
+							
+							clientMap.put(name, out); 
+							
+							String s = "";
+							while (in!=null) {
+								s = in.readLine();
+								System.out.println(s);
+								
+								if(s.equals("/list"))
+									list(out);
+								
+								else if(s.equals("/out")) {
+									out.println("선택지로 이동합니다.");
+									clientMap.remove(name);
+									sendAllMsg("", name + "님이 퇴장하셨습니다.");
+									ShowRoom(name,out);
+								}
+								else
+									sendAllMsg(name, s);
+							}
+							
+						} catch(Exception e) {
+							System.out.println("예외:"+e);
+						} finally {
+							
+							clientMap.remove(name);
+							sendAllMsg("", name + "님이 퇴장하셨습니다.");
+							
+							try {
+								in.close();
+								out.close();
+								
+								socket.close();
+							} catch(Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					
+					else if(choice.equals("4")) {
+						
+						
+						try {
+							out.println("========================================================");
+							out.println("용무기 강화 게임을 시작합니다.");
+							out.println("X공지사항X");
+							out.println("*참고*게임속 돈은 원래 계정의 돈에 영향을 주지 않습니다. 9강성공시에 30000원을 드립니다!");
+							out.println("  ");
+							out.println("처음에 시작하거나, 무기가 파괴되었을때 다시 try하는 비용은 1000원입니다.");
+							out.println("  ");
+							out.println("소지금을 넉넉하게 확보하여 9강을 도전하는것이 이 게임의 TIP입니다. ");
+							out.println("  ");
+							out.println("소지금이 0원이면 Game Over 입니다.");
+							out.println("  ");
+							out.println("==========================================================");
+							
+							
+							Good gms = new Good();
+							
+							for(int i=1; i>0; i++) {	
+								   int money = gms.money;
+								   int clear;
+								   if(money < 1000) {
+									   out.println("Game Over 소지금이 부족합니다. Game Over");
+									   out.println("Game Over 소지금이 부족합니다. Game Over");
+									   out.println("Game Over 소지금이 부족합니다. Game Over");
+									   ShowRoom(name,out);
+								   }
+								   out.println("  ");
+								   out.println("용무기 강화에 도전하시겠습니까? \n 1강->2강 확률90%  (도전 1 입력/게임종료 2 입력)");
+								   out.println("  ");
+								   out.printf("소지금  %d원 [용무기는 1000원 입니다.] \n",money);
+								   
+								   String s = "";
+								   int trS;
+								   
+								   while(true) {
+									   s = in.readLine();
+									   if(s.equals("1") || s.equals("2")) {
+										   trS = Integer.parseInt(s);
+											break; 
+									   }
+									   else
+										out.println("숫자 1또는 2만입력하세요.");
+								   }
+								   
+								   if(trS == 1) {
+									   clear = gms.Goodgame(in,out);
+									   if(clear==9) {
+										   out.println("축하합니다! 게임에서 승리하셨습니다.");
+										   out.println("축하합니다! 게임에서 승리하셨습니다.");
+										   out.println("상금 30000원이 충전되었습니다.");
+										   out.println("축하합니다! 게임에서 승리하셨습니다.");
+										   out.println("상금 30000원이 충전되었습니다.");
+										   out.println("축하합니다! 게임에서 승리하셨습니다.");
+										   out.println("상금 30000원이 충전되었습니다.");
+										   out.println("축하합니다! 게임에서 승리하셨습니다.");
+										   
+										   String sql = "update clientinfo set money=money+30000 where id = ?";
+										   
+										   try {
+											   String token= id;
+											   StringTokenizer st = new StringTokenizer(token,"(");
+											   token=st.nextToken();
+											  
+												pstmt4 = con.prepareStatement(sql);
+												pstmt4.setString(1, token);
+												int updateCount = pstmt4.executeUpdate();
+																							
+											} catch (Exception e) {
+												System.out.println("알 수 없는 에러가 발생했습니다.");
+											}
+										   run();//이렇게해되되나.. 3/26
+//										   ShowRoom(name,out);
+//										   doRun(in,out);
+									   }
+								   }
+								   else if(trS == 2) {
+									  System.out.println("게임을 종료합니다.");
+									  ShowRoom(name,out);
+								   }
+								   
+							   }
+						} catch(Exception e) {
+							System.out.println("예외:"+e);
+						} finally {
+							try {
+								in.close();
+								out.close();
+								socket.close();
+							} catch(Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					
+					else if(choice.equals("5")) {
+						return;
+					}
 				
-				else if(choice.equals("5")) {
-					return;
-				}
 			}
 		}
-		
 		
 		//===============================================================================================================
 		//대기방 전용
@@ -656,16 +1072,40 @@ public class ChatApp {
 					} catch (Exception e) {
 					}
 				}
+				
+				public void vetwin(String id) {
+					String sql = "update clientinfo set money=money+5000 where id = ?";
+					   
+					   try {
+						   String token= id;
+						   StringTokenizer st = new StringTokenizer(token,"(");
+						   token=st.nextToken();
+						  
+							pstmt5 = con.prepareStatement(sql);
+							pstmt5.setString(1, token);
+							int updateCount = pstmt5.executeUpdate();
+																		
+						} catch (Exception e) {
+							System.out.println("알 수 없는 에러가 발생했습니다.");
+						}
+				}
+				
+				public void vetlose(String id) {
+					String sql = "update clientinfo set money=money-5000 where id = ?";
+					   
+					   try {
+						   String token= id;
+						   StringTokenizer st = new StringTokenizer(token,"(");
+						   token=st.nextToken();
+						  
+							pstmt6 = con.prepareStatement(sql);
+							pstmt6.setString(1, token);
+							int updateCount = pstmt6.executeUpdate();
+																		
+						} catch (Exception e) {
+							System.out.println("알 수 없는 에러가 발생했습니다.");
+						}
+				}
+				
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
