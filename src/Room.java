@@ -13,7 +13,7 @@ public class Room {
 	
 	public Room() {
 		RoomMap = new HashMap<String, PrintWriter>();
-		Collections.synchronizedMap(RoomMap);
+		Collections.synchronizedMap(RoomMap); // 모든뜨레드를 동기화하는 안전장치인듯함 3/25
 	}
 	
 	public void newRoom(String title, String id, PrintWriter out) {
