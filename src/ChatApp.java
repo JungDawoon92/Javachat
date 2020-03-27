@@ -274,7 +274,7 @@ public class ChatApp {
 							if(coco == 10000) {
 								grade = "서민";
 							}
-							else if(10000 >= coco) {
+							else if(10000 > coco) {
 								grade = "노예";
 							}
 							else if(coco >= 10000 && 100000 > coco) {
